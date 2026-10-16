@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&subset=cyrillic&display=swap" rel="stylesheet">
+<title>merwcut — нарезка по лицу</title>
+<style>
+:root{
+  --bg:#12050a;--card:#1d0a11;--card2:#260d16;--ink:#f6e9eb;--mute:#b99ca3;--line:#4a1827;
+  --acc:#9b1c34;--acc2:#c02642;--hot:#ff5a6e;--gold:#e8b4a0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{
+  margin:0;color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;
+  background:
+    radial-gradient(900px 500px at 10% -10%,rgba(155,28,52,.35),transparent 60%),
+    radial-gradient(700px 500px at 100% 0%,rgba(110,16,38,.3),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+main{max-width:880px;margin:0 auto;padding:28px 16px 70px}
+header{margin-bottom:22px}
+.logo{display:flex;align-items:center;gap:14px}
+.logo i{
+  width:48px;height:48px;border-radius:14px;flex:none;
+  background:linear-gradient(135deg,var(--acc2),#5c0f20);
+  box-shadow:0 8px 24px rgba(155,28,52,.5),inset 0 1px 0 rgba(255,255,255,.2);
+  display:grid;place-items:center;font-style:normal;font-size:24px;
+}
+h1{font-size:30px;margin:0;letter-spacing:.3px;line-height:1.25;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px}
+h1 .bw{display:grid;overflow:hidden;padding-bottom:.08em;transition:width .55s cubic-bezier(.4,0,.2,1)}
+h1 .bw span{
+  grid-area:1/1;width:max-content;white-space:nowrap;transition:opacity .5s ease;
+  background:linear-gradient(90deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent
+}
+h1 .n2{opacity:0}
+h1.open .n1{opacity:0}
+h1.open .n2{opacity:1}
+h1:focus-visible{outline:3px solid var(--hot);outline-offset:4px}
+h2{font-size:18px;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+h2 b{
+  width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:14px;
+  background:linear-gradient(135deg,var(--acc2),var(--acc));box-shadow:0 0 0 3px rgba(192,38,66,.2)
+}
+p.s{color:var(--mute);margin:10px 0 0;font-size:15px}
+section{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35)
+}
+button{
+  font:inherit;font-weight:600;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff;border:0;border-radius:10px;
+  padding:11px 20px;cursor:pointer;box-shadow:0 4px 14px rgba(155,28,52,.4);transition:transform .15s,filter .15s
+}
+button:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:default;box-shadow:none}
+button.alt{background:#34121d;color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+label{display:inline-flex;align-items:center;gap:8px;margin:5px 16px 5px 0;flex-wrap:wrap}
+input[type=number],select{
+  font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;width:84px;
+  background:#14060b;color:var(--ink)
+}
+select{width:auto;max-width:100%}
+input[type=checkbox]{accent-color:var(--acc2);width:18px;height:18px}
+input[type=file]{color:var(--mute);max-width:100%}
+input[type=file]::file-selector-button{
+  font:inherit;font-weight:600;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff;
+  border:0;border-radius:10px;padding:10px 18px;margin-right:14px;cursor:pointer
+}
+.prow{display:flex;align-items:center;gap:12px;margin-top:14px}
+progress{flex:1;height:12px;border:0;border-radius:99px;overflow:hidden;background:#14060b;appearance:none;-webkit-appearance:none}
+progress::-webkit-progress-bar{background:#14060b;border-radius:99px;border:1px solid var(--line)}
+progress::-webkit-progress-value{background:linear-gradient(90deg,#7a1226,var(--hot));border-radius:99px;transition:width .2s}
+progress::-moz-progress-bar{background:linear-gradient(90deg,#7a1226,var(--hot));border-radius:99px}
+.prow .game{padding:8px 14px;font-size:14px;white-space:nowrap;background:#34121d;border:1px solid var(--acc);box-shadow:none}
+.log{color:var(--mute);font-size:14px;margin-top:8px;min-height:20px}
+#people{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
+.p{border:2px solid var(--line);background:#14060b;border-radius:14px;padding:7px;text-align:center;color:var(--ink);box-shadow:none}
+.p img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px;display:block}
+.p small{display:block;color:var(--mute);margin-top:5px;font-weight:400}
+.p.on{border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,90,110,.3)}
+
+/* Редактор рамки */
+#prev,#sprev{
+  display:block;margin:12px auto 0;width:auto;max-width:100%;max-height:62vh;
+  border-radius:12px;touch-action:none;cursor:crosshair;background:#000;border:1px solid var(--line);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none
+}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 12px}
+.chip{padding:8px 13px;font-size:13px}
+.ro{color:var(--gold);font-size:13px;margin-left:auto}
+.hint{background:rgba(255,90,110,.07);border:1px solid rgba(255,90,110,.25);border-radius:10px;padding:9px 12px;font-size:14px;color:var(--mute);margin:10px 0 0}
+
+#res{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.clip{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:#14060b;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.clip .ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--acc2),#5c0f20);display:grid;place-items:center;flex:none}
+.clip .nm{flex:1;min-width:0}
+.clip .nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clip .nm small{color:var(--mute)}
+.clip a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;background:#34121d;border:1px solid var(--acc);padding:8px 14px;border-radius:9px;white-space:nowrap}
+.clip a:hover{background:var(--acc)}
+.clip .pvb{
+  font:inherit;font-weight:600;font-size:14px;color:#fff;white-space:nowrap;padding:8px 14px;border-radius:9px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);box-shadow:none;backdrop-filter:blur(4px)
+}
+.clip .pvb:hover:not(:disabled){background:rgba(255,255,255,.16);filter:none;transform:none}
+.clip .pv{flex:1 1 100%;max-height:0;opacity:0;overflow:hidden;transition:max-height .4s ease,opacity .3s ease}
+.clip .pv.open{max-height:640px;opacity:1}
+.clip .pv video{display:block;width:100%;max-height:60vh;background:#000;border-radius:10px;margin-top:2px;border:1px solid var(--line)}
+.warn{background:rgba(232,180,160,.08);border:1px solid rgba(232,180,160,.25);color:var(--gold);border-radius:10px;padding:10px 14px;font-size:14px;margin-top:14px}
+
+/* Snake */
+#gm{position:fixed;inset:0;z-index:50;background:rgba(10,2,5,.82);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
+.gbox{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--acc);border-radius:18px;padding:16px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.ghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}
+.ghead b{font-size:17px}
+.ghead span{color:var(--mute);font-size:14px}
+#gc{width:100%;aspect-ratio:1;border-radius:12px;display:block;touch-action:none;border:1px solid var(--line)}
+.gmini{margin:10px 0 0;color:var(--mute);font-size:13px;text-align:center}
+.dpad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,50px);gap:6px;justify-content:center;margin-top:12px}
+.dpad button{padding:0;font-size:20px;background:#34121d;border:1px solid var(--line);box-shadow:none}
+.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .d{grid-column:2;grid-row:2}.dpad .r{grid-column:3;grid-row:2}
+@media (hover:hover) and (pointer:fine){.dpad{display:none}}
+
+/* Приветственный баннер */
+#welcome,#areaM{position:fixed;inset:0;z-index:100;background:rgba(8,1,4,.86);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;overflow:auto;font-family:"Montserrat","Segoe UI",system-ui,sans-serif}
+.wbox{background:linear-gradient(180deg,#240610,#12030a);border:1px solid #5c0f20;border-radius:22px;padding:26px;width:100%;max-width:440px;box-shadow:0 24px 70px rgba(0,0,0,.75),0 0 0 1px rgba(155,28,52,.15)}
+.wbox h3{margin:0 0 12px;font-size:22px;font-weight:700;background:linear-gradient(90deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.wbox p{margin:0 0 12px;color:var(--ink);font-size:15px;line-height:1.55}
+.wbox p.fb{color:var(--mute);margin-bottom:20px}
+#areaM .acv{display:block;width:100%;max-height:50vh;object-fit:contain;background:#000;border:1px solid #5c0f20;border-radius:14px;margin:0 0 14px}
+#areaM p.at{text-align:center;font-weight:600;margin:0 0 16px}
+.wbtns{display:flex;flex-wrap:wrap;gap:10px}
+.wbtns>*{flex:1 1 150px;text-align:center}
+.wbtns button,.wbtns a.tg{font-family:inherit;border-radius:999px}
+.wbtns button{padding:12px 22px}
+.wbtns a.tg{
+  font-weight:600;font-size:16px;color:#fff;text-decoration:none;padding:12px 22px;
+  background:linear-gradient(135deg,#1e4a96,#0b1f4a);border:0;
+  box-shadow:0 4px 14px rgba(15,45,110,.5);transition:transform .15s,filter .15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px
+}
+.wbtns a.tg svg{width:22px;height:22px;flex:none}
+.wbtns a.tg:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.wbtns a.tg:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+.fbk{display:flex;justify-content:center;margin-top:28px}
+.fbk a{display:inline-flex;align-items:center;gap:10px;color:var(--mute);text-decoration:none;font-weight:600;font-size:15px;padding:10px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);transition:color .15s,border-color .15s,transform .15s}
+.fbk a:hover{color:var(--ink);border-color:var(--acc2);transform:translateY(-1px)}
+.fbk a:focus-visible{outline:3px solid var(--hot);outline-offset:3px}
+.fbk svg{width:22px;height:22px;flex:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo"><i>🎬</i><h1 id="brand" tabindex="0" role="button" aria-expanded="false"><span class="bw"><span class="n1">merwcut</span><span class="n2">merwleem cut</span></span></h1></div>
+  <p class="s">Всё работает в браузере: видео никуда не загружается. Нужен компьютер с Chrome, Edge или Firefox и интернет — для загрузки модели распознавания лиц.</p>
+</header>
+
+<section>
+<h2><b>1</b>Видео</h2>
+<input type="file" id="file" accept="video/*">
+<div class="warn">Во время сканирования и нарезки держи вкладку открытой и не сворачивай окно, иначе браузер замедлит работу.</div>
+</section>
+
+<section id="s1" hidden>
+<h2><b>2</b>Поиск лиц и персонажей</h2>
+<label>Модель
+<select id="model">
+  <optgroup label="Люди">
+    <option value="fast">Быстрая (Tiny) — скорость, телефон</option>
+    <option value="tiny320">Лёгкая (Tiny 320) — крупные лица, мгновенно</option>
+    <option value="acc" selected>Точная (SSD) — на каждый день</option>
+    <option value="strict">Строгая (SSD) — только чёткие лица</option>
+    <option value="sens">Чувствительная (SSD) — тёмные и мелкие лица</option>
+    <option value="max">Максимум (SSD + Tiny) — сложные кадры</option>
+    <option value="sim">Различает похожих — близнецы, родственники</option>
+    <option value="merge">Склеивает ракурсы — один человек, разные ракурсы</option>
+  </optgroup>
+  <optgroup label="Аниме">
+    <option value="anime">Аниме-лица (YOLO) — персонажи аниме и мультиков</option>
+  </optgroup>
+  <optgroup label="Животные">
+    <option value="pets">Кошки и собаки</option>
+    <option value="birds">Птицы</option>
+    <option value="wild">Лошади, коровы, овцы, медведи, слоны, зебры, жирафы</option>
+    <option value="anyani">Любые животные — все виды сразу</option>
+  </optgroup>
+</select></label>
+<label>Проверять кадр каждые
+<select id="step"><option value="1">1 с (точнее)</option><option value="2" selected>2 с</option><option value="3">3 с (быстрее)</option></select></label>
+<div class="hint">Если нужное лицо маленькое (например, веб-камера стримера в углу), выдели вокруг него область: поиск пойдёт только там, быстрее и точнее. Без рамки сайт ищет по всему кадру и отдельно по углам.<br>
+<b>Как выделять:</b> потяни по картинке, чтобы нарисовать рамку · тяни внутри рамки, чтобы переместить · тяни за белые кружки, чтобы изменить размер. Чтобы прокрутить страницу, касайся экрана вне картинки.</div>
+<canvas id="sprev"></canvas>
+<div class="tools" id="toolsS"></div>
+<button id="scan">Найти лица</button>
+<div class="prow" id="pgw" hidden><progress id="pg" value="0" max="1"></progress><button class="game" type="button">🐍 Играть</button></div>
+<div class="log" id="log"></div>
+</section>
+
+<section id="s2" hidden>
+<h2><b>3</b>Выбери человека</h2>
+<div id="people"></div>
+</section>
+
+<section id="s3" hidden>
+<h2><b>4</b>Настройки нарезки</h2>
+<label>Количество клипов <input type="number" id="cnt" value="10" min="1" max="100"></label>
+<label>Длина от <input type="number" id="lo" value="2" min="2" max="6" step="0.5"> до <input type="number" id="hi" value="6" min="2" max="6" step="0.5"> с</label>
+<div>
+<label>Качество клипов
+<select id="q">
+  <option value="max">Максимальное (оригинал, 12 Мбит/с)</option>
+  <option value="high" selected>Высокое (до 1080p, 8 Мбит/с)</option>
+  <option value="mid">Среднее (до 720p, 4 Мбит/с)</option>
+  <option value="low">Экономное (до 480p, 1.5 Мбит/с)</option>
+</select></label>
+</div>
+<div style="margin-top:8px"><label><input type="checkbox" id="crop"> Вырезать только прямоугольную область, а не весь кадр</label></div>
+<div id="cropBox" hidden>
+<div class="hint"><b>Как выделять:</b> потяни по кадру — нарисуешь рамку · тяни внутри — переместишь · тяни за белые кружки — изменишь размер. Кнопки ниже ставят готовую рамку нужной пропорции вокруг лица. Зелёная рамка — лицо выбранного человека. Область фиксирована на всё видео.</div>
+<canvas id="prev"></canvas>
+<div class="tools" id="toolsP"></div>
+</div>
+<div style="margin-top:12px"><button id="go">Нарезать</button></div>
+<div class="prow" id="pgw2" hidden><progress id="pg2" value="0" max="1"></progress><button class="game" type="button">🐍 Играть</button></div>
+<div class="log" id="log2"></div>
+</section>
+
+<section id="s4" hidden>
+<h2><b>5</b>Готовые клипы</h2>
+<p class="s" style="margin:0 0 14px">Спасибо, что используешь мой сайт. Надеюсь, я помог тебе. Теперь эти клипы можно использовать в стикерах, нарезках и других видео. Удачи!</p>
+<button id="zip" class="alt">Скачать всё одним ZIP</button>
+<div id="res"></div>
+</section>
+<footer class="fbk"><a href="https://t.me/merwleem" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" role="img" aria-label="Telegram"><defs><linearGradient id="tgf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7cc8ff"/></linearGradient></defs><path fill="url(#tgf)" d="M21.9 4.1 18.6 19.7c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L5.9 13.2 1 11.7c-1.1-.3-1.1-1.1.2-1.6L20.4 2.7c.9-.3 1.7.2 1.5 1.4z"/></svg>Обратная связь</a></footer>
+</main>
+
+<div id="gm" hidden>
+  <div class="gbox">
+    <div class="ghead"><b>🐍 Змейка</b><span>Счёт: <b id="gs" style="font-size:inherit">0</b> · Рекорд: <b id="gb" style="font-size:inherit">0</b></span><button class="alt" id="gx" style="padding:6px 12px">✕</button></div>
+    <canvas id="gc" width="360" height="360"></canvas>
+    <p class="gmini">Стрелки / WASD или свайп. Пробел или тап — начать заново.</p>
+    <div class="dpad">
+      <button class="u" data-d="0,-1">▲</button><button class="l" data-d="-1,0">◀</button>
+      <button class="d" data-d="0,1">▼</button><button class="r" data-d="1,0">▶</button>
+    </div>
+  </div>
+</div>
+
+<div id="areaM" hidden>
+  <div class="wbox" role="dialog" aria-modal="true" aria-label="Подтверждение области">
+    <canvas class="acv" id="amc"></canvas>
+    <p class="at">вот выбранная область. продолжаем?</p>
+    <div class="wbtns">
+      <button id="amno" class="alt" type="button">Отменить</button>
+      <button id="amyes" type="button">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div id="welcome" hidden>
+  <div class="wbox" role="dialog" aria-modal="true" aria-labelledby="wt">
+    <h3 id="wt">Привет! 👋</h3>
+    <p>привет! ты на сайте merwcut, от merwleem'a. этот сайт создан нейросетью с целью помочь эдиторам и хелперам, а конкретно — делать нарезки с лицом человека. нажми «понял», выбери видео, а дальше ты и сам все поймешь :)</p>
+    <p class="fb">есть вопросы или предложения? обратная связь доступна по кнопке ниже</p>
+    <div class="wbtns">
+      <a class="tg" id="wtg" href="https://t.me/merwleem" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="tgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7cc8ff"/></linearGradient></defs><path fill="url(#tgg)" d="M21.9 4.1 18.6 19.7c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L5.9 13.2 1 11.7c-1.1-.3-1.1-1.1.2-1.6L20.4 2.7c.9-.3 1.7.2 1.5 1.4z"/></svg>связаться в telegram</a>
+      <button id="wok" type="button">понял</button>
+    </div>
+  </div>
+</div>
+
+<video id="v" playsinline preload="auto" style="display:none"></video>
+<canvas id="dc" style="display:none"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const v=$('v'), dc=$('dc'), dctx=dc.getContext('2d',{willReadFrequently:true});
+const MODELS_URL='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+let samples=[], clusters=[], sel=-1, step=2, rect=null, clips=[], audio=null, detMode='acc';
+const loaded={};
+
+const seek=t=>new Promise(r=>{
+  const f=()=>{v.removeEventListener('seeked',f);r()};
+  v.addEventListener('seeked',f);
+  v.currentTime=Math.abs(v.currentTime-t)<0.001?t+0.002:t;
+});
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+
+$('file').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  v.src=URL.createObjectURL(f);
+  v.onloadedmetadata=()=>{
+    ['s2','s3','s4'].forEach(i=>$(i).hidden=true);
+    $('s1').hidden=false; $('pgw').hidden=true;
+    $('log').textContent='Длительность '+fmt(v.duration)+', '+v.videoWidth+'×'+v.videoHeight;
+    initS();
+  };
+};
+
+/* ---------- Модели распознавания ---------- */
+// det: детекторы face-api · alt: другой движок (anime — YOLO/ONNX, coco — COCO-SSD) · thr: порог схожести лиц
+const T=(n,p)=>({k:'tiny',p:Object.assign({inputSize:608,scoreThreshold:.4},p)});
+const S_=(c)=>({k:'ssd',p:{minConfidence:c}});
+const COCO=['cat','dog','bird','horse','sheep','cow','elephant','bear','zebra','giraffe'];
+const MODELS={
+  fast:{det:[T()],thr:.55}, tiny320:{det:[T(0,{inputSize:320,scoreThreshold:.5})],thr:.55},
+  acc:{det:[S_(.45)],thr:.55}, strict:{det:[S_(.7)],thr:.55}, sens:{det:[S_(.3)],thr:.55},
+  max:{det:[S_(.45),T()],thr:.55}, sim:{det:[S_(.45)],thr:.45}, merge:{det:[S_(.45)],thr:.65},
+  anime:{alt:'anime',thr:.35},
+  pets:{alt:'coco',cls:['cat','dog'],thr:.35}, birds:{alt:'coco',cls:['bird'],thr:.35},
+  wild:{alt:'coco',cls:['horse','sheep','cow','elephant','bear','zebra','giraffe'],thr:.35}, anyani:{alt:'coco',cls:COCO,thr:.35}
+};
+const M=()=>MODELS[detMode]||MODELS.acc;
+const loadScript=src=>new Promise((r,j)=>{const e=document.createElement('script');e.src=src;e.onload=r;e.onerror=()=>j(new Error('не загрузилось: '+src));document.head.appendChild(e);});
+let animeSess=null, cocoNet=null;
+async function loadModels(){
+  const m=M();
+  if(m.alt==='anime'){
+    if(animeSess)return; $('log').textContent='Загружаю модель аниме-лиц (около 12 МБ)…';
+    await loadScript('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js');
+    ort.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/'; ort.env.wasm.numThreads=1;
+    animeSess=await ort.InferenceSession.create('https://huggingface.co/deepghs/anime_face_detection/resolve/main/face_detect_v1.4_n/model.onnx',{executionProviders:['wasm']});
+    return;
+  }
+  if(m.alt==='coco'){
+    if(cocoNet)return; $('log').textContent='Загружаю модель животных…';
+    await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+    await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');
+    cocoNet=await cocoSsd.load(); return;
+  }
+  const need=['faceLandmark68Net','faceRecognitionNet'];
+  if(m.det.some(d=>d.k==='tiny'))need.push('tinyFaceDetector');
+  if(m.det.some(d=>d.k==='ssd'))need.push('ssdMobilenetv1');
+  const todo=need.filter(n=>!loaded[n]);
+  if(!todo.length)return;
+  $('log').textContent='Загружаю модели распознавания лиц…';
+  await Promise.all(todo.map(n=>faceapi.nets[n].loadFromUri(MODELS_URL).then(()=>{loaded[n]=true})));
+}
+const detectors=()=>M().det.map(d=>d.k==='tiny'?new faceapi.TinyFaceDetectorOptions({inputSize:d.p.inputSize,scoreThreshold:d.p.scoreThreshold}):new faceapi.SsdMobilenetv1Options({minConfidence:d.p.minConfidence}));
+function iou(a,b){
+  const x1=Math.max(a.x,b.x),y1=Math.max(a.y,b.y),x2=Math.min(a.x+a.width,b.x+b.width),y2=Math.min(a.y+a.height,b.y+b.height);
+  const i=Math.max(0,x2-x1)*Math.max(0,y2-y1);
+  return i/((a.width*a.height+b.width*b.height-i)||1);
+}
+// «отпечаток» для аниме и животных: цветовая гистограмма (волосы/шерсть/оперение)
+function colorSig(cv,b){
+  const c=document.createElement('canvas'); c.width=c.height=24; const g=c.getContext('2d',{willReadFrequently:true});
+  g.drawImage(cv,Math.max(0,b.x),Math.max(0,b.y),Math.max(1,b.width),Math.max(1,b.height),0,0,24,24);
+  const px=g.getImageData(0,0,24,24).data, h=new Float32Array(27);
+  for(let i=0;i<px.length;i+=4){
+    const r=px[i]/255,gg=px[i+1]/255,bl=px[i+2]/255, mx=Math.max(r,gg,bl), mn=Math.min(r,gg,bl), d=mx-mn;
+    if(mx<.001||d/mx<.2){h[24+Math.min(2,Math.floor(mx*3))]++;continue;}
+    let hu=mx===r?((gg-bl)/d)%6:mx===gg?(bl-r)/d+2:(r-gg)/d+4; if(hu<0)hu+=6;
+    h[Math.floor(hu*2)%12+(mx>.5?12:0)]++;
+  }
+  const n=Math.hypot(...h)||1; return h.map(x=>x/n);
+}
+async function detectAnime(cv){
+  const S=640, sc=Math.min(S/cv.width,S/cv.height), oc=document.createElement('canvas'); oc.width=oc.height=S;
+  const g=oc.getContext('2d',{willReadFrequently:true}); g.fillStyle='#727272'; g.fillRect(0,0,S,S);
+  g.drawImage(cv,0,0,Math.round(cv.width*sc),Math.round(cv.height*sc));
+  const px=g.getImageData(0,0,S,S).data, f=new Float32Array(3*S*S);
+  for(let i=0;i<S*S;i++){f[i]=px[i*4]/255;f[S*S+i]=px[i*4+1]/255;f[2*S*S+i]=px[i*4+2]/255;}
+  const r=await animeSess.run({[animeSess.inputNames[0]]:new ort.Tensor('float32',f,[1,3,S,S])});
+  const o=r[animeSess.outputNames[0]].data, N=o.length/5, c=[];
+  for(let i=0;i<N;i++){const s=o[4*N+i]; if(s<.3)continue;
+    const w=o[2*N+i]/sc,h=o[3*N+i]/sc; c.push({x:o[i]/sc-w/2,y:o[N+i]/sc-h/2,width:w,height:h,s});}
+  c.sort((a,b)=>b.s-a.s); const keep=[];
+  for(const q of c)if(keep.every(k=>iou(k,q)<.5))keep.push(q);
+  return keep.map(b=>({detection:{box:b,score:b.s},descriptor:colorSig(cv,b)}));
+}
+async function detectCoco(cv,cls){
+  const p=await cocoNet.detect(cv,10,.35);
+  return p.filter(o=>cls.includes(o.class)).map(o=>{const b={x:o.bbox[0],y:o.bbox[1],width:o.bbox[2],height:o.bbox[3]};
+    return {detection:{box:b,score:o.score},descriptor:colorSig(cv,b)};});
+}
+
+function thumb(b){
+  const m=b.width*0.35, x=Math.max(0,b.x-m), y=Math.max(0,b.y-m);
+  const w=Math.min(dc.width-x,b.width+2*m), h=Math.min(dc.height-y,b.height+2*m), s=Math.max(w,h);
+  const c=document.createElement('canvas'); c.width=c.height=112;
+  c.getContext('2d').drawImage(dc,x,y,w,h,0,0,112*w/s,112*h/s);
+  return c.toDataURL('image/jpeg',.85);
+}
+
+/* ---------- Редактор прямоугольника (удобный для телефона) ---------- */
+const clamp01=n=>Math.min(1,Math.max(0,n));
+function drawOverlay(cv,R){
+  if(!R)return;
+  const g=cv.getContext('2d'), W=cv.width, H=cv.height, r=cv.getBoundingClientRect(), k=r.width?W/r.width:1;
+  const x=R.x*W,y=R.y*H,w=R.w*W,h=R.h*H;
+  g.save();
+  g.fillStyle='rgba(10,2,5,.62)'; g.beginPath(); g.rect(0,0,W,H); g.rect(x,y,w,h); g.fill('evenodd');
+  g.lineWidth=2*k; g.strokeStyle='#ff5a6e'; g.strokeRect(x,y,w,h);
+  g.lineWidth=1*k; g.strokeStyle='rgba(255,255,255,.3)'; g.beginPath();
+  for(let i=1;i<3;i++){g.moveTo(x+w*i/3,y);g.lineTo(x+w*i/3,y+h);g.moveTo(x,y+h*i/3);g.lineTo(x+w,y+h*i/3);}
+  g.stroke();
+  const dot=(a,b,rad)=>{g.beginPath();g.arc(a,b,rad*k,0,7);g.fillStyle='#fff';g.fill();g.lineWidth=3*k;g.strokeStyle='#c02642';g.stroke();};
+  const big=Math.min(w,h)/k>90;
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(p=>dot(p[0],p[1],11));
+  if(big)[[x+w/2,y],[x+w/2,y+h],[x,y+h/2],[x+w,y+h/2]].forEach(p=>dot(p[0],p[1],8));
+  g.restore();
+}
+function bindRect(p,get,set,redraw,onDone){
+  let mode=null,st=null,orig=null,prevR=null,off=null;
+  const pos=e=>{const r=p.getBoundingClientRect();return{x:clamp01((e.clientX-r.left)/r.width),y:clamp01((e.clientY-r.top)/r.height)};};
+  function hit(e){
+    const R=get(); if(!R)return null;
+    const r=p.getBoundingClientRect(), px=e.clientX-r.left, py=e.clientY-r.top;
+    const x1=R.x*r.width,y1=R.y*r.height,x2=(R.x+R.w)*r.width,y2=(R.y+R.h)*r.height;
+    const tol=e.pointerType==='mouse'?13:28;
+    const pts=[['tl',x1,y1],['tr',x2,y1],['bl',x1,y2],['br',x2,y2]];
+    if(Math.min(x2-x1,y2-y1)>=90)pts.push(['t',(x1+x2)/2,y1],['b',(x1+x2)/2,y2],['l',x1,(y1+y2)/2],['r',x2,(y1+y2)/2]);
+    let best=null,bd=1e9;
+    for(const [n,a,b] of pts){const d=Math.hypot(px-a,py-b); if(d<=tol&&d<bd){bd=d;best=n;}}
+    if(best)return best;
+    return(px>x1&&px<x2&&py>y1&&py<y2)?'move':null;
+  }
+  p.onpointerdown=e=>{
+    if(!e.isPrimary)return;
+    e.preventDefault(); p.setPointerCapture(e.pointerId);
+    const q=pos(e); st=q; prevR=get(); mode=hit(e)||'new'; orig=prevR?{...prevR}:null;
+    if(mode!=='new'&&mode!=='move'){
+      off={x:0,y:0};
+      if(mode.includes('l'))off.x=q.x-orig.x; if(mode.includes('r'))off.x=q.x-(orig.x+orig.w);
+      if(mode.includes('t'))off.y=q.y-orig.y; if(mode.includes('b'))off.y=q.y-(orig.y+orig.h);
+    }
+  };
+  p.onpointermove=e=>{
+    if(!mode){ // подсказка курсора для мыши
+      if(e.pointerType==='mouse'){const h=hit(e);p.style.cursor=!h?'crosshair':h==='move'?'move':({tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',t:'ns-resize',b:'ns-resize',l:'ew-resize',r:'ew-resize'})[h];}
+      return;
+    }
+    const q=pos(e), MIN=0.05;
+    if(mode==='new'){
+      set({x:Math.min(st.x,q.x),y:Math.min(st.y,q.y),w:Math.abs(q.x-st.x),h:Math.abs(q.y-st.y)});
+    }else if(mode==='move'){
+      set({x:Math.min(1-orig.w,Math.max(0,orig.x+q.x-st.x)),y:Math.min(1-orig.h,Math.max(0,orig.y+q.y-st.y)),w:orig.w,h:orig.h});
+    }else{
+      let x1=orig.x,y1=orig.y,x2=orig.x+orig.w,y2=orig.y+orig.h;
+      if(mode.includes('l'))x1=Math.min(clamp01(q.x-off.x),x2-MIN);
+      if(mode.includes('r'))x2=Math.max(clamp01(q.x-off.x),x1+MIN);
+      if(mode.includes('t'))y1=Math.min(clamp01(q.y-off.y),y2-MIN);
+      if(mode.includes('b'))y2=Math.max(clamp01(q.y-off.y),y1+MIN);
+      set({x:x1,y:y1,w:x2-x1,h:y2-y1});
+    }
+    redraw();
+  };
+  const end=()=>{
+    if(!mode)return;
+    const R=get(); let bad=false;
+    if(mode==='new'&&(!R||R.w<0.04||R.h<0.04)){set(prevR);redraw();bad=true;} // случайное касание не стирает рамку
+    mode=null;
+    const N=get(), was=prevR;
+    const diff=!was||['x','y','w','h'].some(k=>Math.abs(N[k]-was[k])>0.002);
+    if(!bad&&N&&diff&&onDone)onDone(was);
+  };
+  p.onpointerup=end; p.onpointercancel=end;
+}
+function mkTools(id,o){
+  const box=$(id); box.innerHTML='';
+  const add=(t,fn)=>{const b=document.createElement('button');b.type='button';b.className='alt chip';b.textContent=t;b.onclick=fn;box.appendChild(b);};
+  const aspect=ar=>{
+    const VW=v.videoWidth||16,VH=v.videoHeight||9, rn=ar*VH/VW;
+    let w=Math.min(0.8,0.8*rn), h=w/rn; if(h>0.9){h=0.9;w=h*rn;}
+    const c=o.center?o.center():{x:.5,y:.5};
+    o.set({x:Math.min(1-w,Math.max(0,c.x-w/2)),y:Math.min(1-h,Math.max(0,c.y-h/2)),w,h}); o.redraw();
+  };
+  if(o.face)add('👤 На лице',()=>{
+    const f=o.face(); if(!f)return; const VW=v.videoWidth,VH=v.videoHeight, s=Math.max(f[2],f[3])*3;
+    let w=Math.min(1,s/VW),h=Math.min(1,s/VH);
+    o.set({x:Math.min(1-w,Math.max(0,(f[0]+f[2]/2)/VW-w/2)),y:Math.min(1-h,Math.max(0,(f[1]+f[3]/2)/VH-h/2)),w,h}); o.redraw();
+  });
+  add('9:16',()=>aspect(9/16)); add('1:1',()=>aspect(1)); add('4:5',()=>aspect(4/5)); add('16:9',()=>aspect(16/9));
+  add('✕ Сбросить',()=>{o.set(null);o.redraw();});
+  const ro=document.createElement('span'); ro.className='ro'; box.appendChild(ro);
+  return ()=>{const R=o.get(); ro.textContent=R?('Область: '+Math.round(R.w*(v.videoWidth||0))+'×'+Math.round(R.h*(v.videoHeight||0))+' px'):'Область не выбрана';};
+}
+
+let sRect=null, sSnap=null, roS=()=>{}, roP=()=>{};
+function drawS(){
+  const p=$('sprev'),x=p.getContext('2d'); x.drawImage(sSnap,0,0);
+  drawOverlay(p,sRect); roS();
+}
+async function initS(){
+  await seek(Math.min(v.duration*0.1,20));
+  const W=Math.min(720,v.videoWidth),H=Math.round(v.videoHeight*W/v.videoWidth);
+  sSnap=document.createElement('canvas'); sSnap.width=W; sSnap.height=H;
+  sSnap.getContext('2d').drawImage(v,0,0,W,H);
+  const p=$('sprev'); p.width=W; p.height=H; sRect=null; drawS();
+}
+
+async function detectFrame(){
+  const VW=v.videoWidth,VH=v.videoHeight;
+  const regs=sRect?[{x:sRect.x*VW,y:sRect.y*VH,w:sRect.w*VW,h:sRect.h*VH}]
+    :[{x:0,y:0,w:VW,h:VH}].concat([[0,0],[1,0],[0,1],[1,1]].map(([a,b])=>({x:a*VW*0.6,y:b*VH*0.6,w:VW*0.4,h:VH*0.4})));
+  const faces=[], seen=[];
+  for(const r of regs){
+    const k=Math.min(3,1000/Math.max(r.w,r.h));
+    dc.width=Math.round(r.w*k); dc.height=Math.round(r.h*k);
+    dctx.drawImage(v,r.x,r.y,r.w,r.h,0,0,dc.width,dc.height);
+    // несколько моделей: объединяем находки, дубликаты (перекрытие рамок) отбрасываем
+    const all=[], m=M();
+    if(m.alt==='anime')all.push(...await detectAnime(dc));
+    else if(m.alt==='coco')all.push(...await detectCoco(dc,m.cls));
+    else for(const o of detectors()){
+      const res=await faceapi.detectAllFaces(dc,o).withFaceLandmarks().withFaceDescriptors();
+      for(const q of res){
+        const d=all.findIndex(z=>iou(z.detection.box,q.detection.box)>0.35);
+        if(d<0)all.push(q); else if(q.detection.score>all[d].detection.score)all[d]=q;
+      }
+    }
+    for(const q of all){
+      const b=q.detection.box; if(b.width<28)continue;
+      const sb=[r.x+b.x/k,r.y+b.y/k,b.width/k,b.height/k], cx=sb[0]+sb[2]/2, cy=sb[1]+sb[3]/2;
+      if(seen.some(o=>cx>o[0]&&cx<o[0]+o[2]&&cy>o[1]&&cy<o[1]+o[3]))continue;
+      seen.push(sb);
+      const d=q.descriptor; let best=-1,bd=9;
+      clusters.forEach((c,j)=>{const e=faceapi.euclideanDistance(c.c,d); if(e<bd){bd=e;best=j}});
+      let cid;
+      if(bd<M().thr){cid=best;const c=clusters[cid];for(let z=0;z<d.length;z++)c.c[z]=(c.c[z]*c.n+d[z])/(c.n+1);c.n++;}
+      else{cid=clusters.length;clusters.push({c:Float32Array.from(d),n:1,area:0,t:0,box:null,img:null});}
+      const c=clusters[cid], a=sb[2]*sb[3];
+      if(a>c.area*1.2){c.area=a;c.t=v.currentTime;c.box=sb;c.img=thumb(b);}
+      faces.push(cid);
+    }
+  }
+  return faces;
+}
+
+$('scan').onclick=async()=>{
+  if(sRect&&!(await askArea(sSnap,sRect)))return;
+  $('scan').disabled=true; $('s2').hidden=$('s3').hidden=$('s4').hidden=true;
+  try{
+    detMode=$('model').value;
+    try{await loadModels();}
+    catch(err){
+      if(M().alt||detMode==='fast')throw err;
+      detMode='fast'; $('log').textContent='Точная модель не загрузилась, использую быструю…'; await loadModels();
+    }
+    step=+$('step').value; samples=[]; clusters=[];
+    const dur=v.duration, total=Math.floor((dur-0.3)/step)+1, t0=performance.now();
+    $('pgw').hidden=false; $('pg').max=total; $('pg').value=0;
+    for(let i=0;i<total;i++){
+      const t=i*step;
+      await seek(t);
+      samples.push({t,faces:await detectFrame()});
+      $('pg').value=i+1;
+      const left=(performance.now()-t0)/(i+1)*(total-i-1)/1000;
+      $('log').textContent='Кадр '+(i+1)+' из '+total+', осталось примерно '+fmt(left);
+    }
+    showPeople();
+  }catch(e){ $('log').textContent='Ошибка: '+e.message+'. Проверь интернет и попробуй ещё раз.'; }
+  $('scan').disabled=false;
+};
+
+function showPeople(){
+  const list=clusters.map((c,i)=>({c,i})).filter(o=>o.c.n>=2).sort((a,b)=>b.c.n-a.c.n).slice(0,24);
+  $('pgw').hidden=true;
+  if(!list.length){$('log').textContent='Ничего не найдено. Попробуй шаг 1 с, другую модель или выдели область вокруг нужного объекта.';return;}
+  $('log').textContent='Готово. Найдено: '+list.length;
+  const box=$('people'); box.innerHTML='';
+  list.forEach(o=>{
+    const b=document.createElement('button'); b.className='p';
+    b.innerHTML='<img src="'+o.c.img+'" alt="Лицо"><small>в '+o.c.n+' кадрах</small>';
+    b.onclick=()=>{[...box.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');pick(o.i);};
+    box.appendChild(b);
+  });
+  $('s2').hidden=false;
+}
+
+let snap=null;
+async function pick(i){
+  sel=i; rect=null; $('s3').hidden=false; $('s4').hidden=true;
+  const c=clusters[i];
+  await seek(c.t);
+  const W=Math.min(720,v.videoWidth), H=Math.round(v.videoHeight*W/v.videoWidth);
+  snap=document.createElement('canvas'); snap.width=W; snap.height=H;
+  snap.getContext('2d').drawImage(v,0,0,W,H);
+  const p=$('prev'); p.width=W; p.height=H; drawPrev();
+}
+function drawPrev(){
+  const p=$('prev'), x=p.getContext('2d'), k=p.width/v.videoWidth;
+  x.drawImage(snap,0,0);
+  drawOverlay(p,rect);
+  const b=clusters[sel].box; x.lineWidth=3; x.strokeStyle='#2fb344';
+  x.strokeRect(b[0]*k,b[1]*k,b[2]*k,b[3]*k);
+  roP();
+}
+$('crop').onchange=e=>{$('cropBox').hidden=!e.target.checked; if(e.target.checked)drawPrev();};
+
+/* ---------- Подтверждение выбранной области ---------- */
+let areaDone=null;
+function askArea(src,R){ // показывает выбранную область, resolve(true) — подтвердили, false — отменили
+  return new Promise(res=>{
+    const W=src.width,H=src.height, cv=$('amc');
+    cv.width=Math.max(1,Math.round(R.w*W)); cv.height=Math.max(1,Math.round(R.h*H));
+    cv.getContext('2d').drawImage(src,R.x*W,R.y*H,R.w*W,R.h*H,0,0,cv.width,cv.height);
+    areaDone=res; $('areaM').hidden=false; $('amyes').focus();
+  });
+}
+function closeArea(ok){
+  if($('areaM').hidden)return;
+  $('areaM').hidden=true;
+  const f=areaDone; areaDone=null; if(f)f(ok);
+}
+$('amyes').onclick=()=>closeArea(true);
+$('amno').onclick=()=>closeArea(false);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeArea(false);});
+
+bindRect($('sprev'),()=>sRect,r=>{sRect=r},drawS);
+bindRect($('prev'),()=>rect,r=>{rect=r},drawPrev);
+roS=mkTools('toolsS',{get:()=>sRect,set:r=>{sRect=r},redraw:()=>sSnap&&drawS()});
+roP=mkTools('toolsP',{get:()=>rect,set:r=>{rect=r},redraw:()=>snap&&drawPrev(),
+  face:()=>sel>=0?clusters[sel].box:null,
+  center:()=>{if(sel<0)return{x:.5,y:.5};const b=clusters[sel].box;return{x:(b[0]+b[2]/2)/v.videoWidth,y:(b[1]+b[3]/2)/v.videoHeight};}});
+
+function plan(){
+  const n=+$('cnt').value||1; let lo=+$('lo').value||2, hi=+$('hi').value||6; if(hi<lo)hi=lo;
+  const pres=samples.map(s=>s.faces.includes(sel)), dur=v.duration, cands=[];
+  pres.forEach((p,i)=>{
+    if(!p)return;
+    let j=i,gap=0; while(j+1<pres.length&&(pres[j+1]||(gap<1&&pres[j+2]))){ if(!pres[j+1])gap++; j++; if((j-i+1)*step>=hi)break; }
+    const len=Math.min(hi,Math.max(lo,(j-i+1)*step)), s=samples[i].t;
+    if(s+len>dur-0.1)return;
+    let hit=0,tot=0; for(let q=i;q<pres.length&&samples[q].t<s+len;q++){tot++;if(pres[q])hit++;}
+    cands.push({s,len,score:hit/tot+Math.min(hit,hi/step)*0.05});
+  });
+  const out=[], free=c=>out.every(o=>c.s>=o.s+o.len||c.s+c.len<=o.s);
+  const bw=dur/n;
+  for(let b=0;b<n;b++){
+    const inB=cands.filter(c=>c.s>=b*bw&&c.s<(b+1)*bw&&free(c)).sort((a,z)=>z.score-a.score)[0];
+    if(inB)out.push(inB);
+  }
+  cands.sort((a,z)=>z.score-a.score);
+  for(const c of cands){if(out.length>=n)break;if(free(c))out.push(c);}
+  return out.sort((a,z)=>a.s-z.s);
+}
+
+const QUALITY={max:{cap:3840,br:12e6},high:{cap:1920,br:8e6},mid:{cap:1280,br:4e6},low:{cap:854,br:1.5e6}};
+
+$('go').onclick=async()=>{
+  const list=plan();
+  if(!list.length){$('log2').textContent='Для этого человека не нашлось подходящих фрагментов.';return;}
+  const useCrop=$('crop').checked;
+  if(useCrop&&!rect){$('log2').textContent='Выдели область на кадре или выключи вырезание области.';return;}
+  if(useCrop&&!(await askArea(snap,rect)))return;
+  $('go').disabled=true; $('s4').hidden=true; $('res').innerHTML=''; clips=[];
+  try{
+    if(!audio){
+      const ac=new (window.AudioContext||window.webkitAudioContext)(); const src=ac.createMediaElementSource(v);
+      const dest=ac.createMediaStreamDestination(); src.connect(dest); audio={ac,dest};
+    }
+    await audio.ac.resume();
+    const Q=QUALITY[$('q').value]||QUALITY.high;
+    const VW=v.videoWidth, VH=v.videoHeight;
+    let sx=0,sy=0,sw=VW,sh=VH;
+    if(useCrop){sx=rect.x*VW;sy=rect.y*VH;sw=rect.w*VW;sh=rect.h*VH;}
+    const sc=Math.min(1,Q.cap/Math.max(sw,sh));
+    const cv=document.createElement('canvas'); cv.width=Math.max(2,Math.round(sw*sc/2)*2); cv.height=Math.max(2,Math.round(sh*sc/2)*2);
+    const cx=cv.getContext('2d');
+    const mime=['video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+    const ext=mime.startsWith('video/mp4')?'mp4':'webm';
+    $('pgw2').hidden=false; $('pg2').max=list.length; $('pg2').value=0;
+    for(let i=0;i<list.length;i++){
+      const {s,len}=list[i];
+      $('log2').textContent='Клип '+(i+1)+' из '+list.length+' ('+fmt(s)+', '+len+' с)';
+      v.pause(); await seek(s);
+      cx.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);
+      const stream=cv.captureStream(30); audio.dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+      const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:Q.br}), chunks=[];
+      rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+      const done=new Promise(r=>rec.onstop=r);
+      rec.start(); await v.play();
+      await new Promise(res=>{const draw=()=>{
+        cx.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);
+        if(v.currentTime>=s+len||v.ended)return res(); requestAnimationFrame(draw);}; draw();});
+      v.pause(); rec.stop(); await done;
+      const blob=new Blob(chunks,{type:mime.split(';')[0]}), name='clip_'+String(i+1).padStart(2,'0')+'.'+ext;
+      clips.push({blob,name});
+      $('pg2').value=i+1;
+    }
+    showClips(list);
+    $('log2').textContent='Готово: клипов '+clips.length+'.';
+  }catch(e){$('log2').textContent='Ошибка: '+e.message;}
+  $('pgw2').hidden=true; $('go').disabled=false;
+};
+
+// Готовые клипы — лёгкий список без видеоплееров, чтобы ничего не лагало
+function showClips(list){
+  const res=$('res'); res.innerHTML='';
+  clips.forEach((c,i)=>{
+    const url=URL.createObjectURL(c.blob), d=document.createElement('div'); d.className='clip';
+    d.innerHTML='<div class="ic">🎞</div><div class="nm"><b></b><small></small></div><button type="button" class="pvb">Предпросмотр</button><a download>Скачать</a><div class="pv"></div>';
+    d.querySelector('b').textContent=c.name;
+    d.querySelector('small').textContent=fmt(list[i].s)+' · '+list[i].len+' с · '+(c.blob.size/1048576).toFixed(1)+' МБ';
+    const a=d.querySelector('a'); a.href=url; a.download=c.name;
+    const pb=d.querySelector('.pvb'), pv=d.querySelector('.pv'); let vid=null;
+    pb.onclick=()=>{
+      if(pv.classList.contains('open')){ // свернуть
+        pv.classList.remove('open'); if(vid)vid.pause(); pb.textContent='Предпросмотр'; return;
+      }
+      document.querySelectorAll('#res .pv video').forEach(x=>x.pause()); // чтобы не играли два сразу
+      if(!vid){vid=document.createElement('video'); vid.src=url; vid.controls=true; vid.playsInline=true; pv.appendChild(vid);}
+      pv.classList.add('open'); pb.textContent='Скрыть'; vid.play().catch(()=>{});
+    };
+    res.appendChild(d);
+  });
+  $('s4').hidden=false;
+}
+
+$('zip').onclick=async()=>{
+  const z=new JSZip(); clips.forEach(c=>z.file(c.name,c.blob));
+  const b=await z.generateAsync({type:'blob',compression:'STORE'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='clips.zip'; a.click();
+};
+
+/* ---------- Змейка ---------- */
+(()=>{
+  const G=18, N=20, cv=$('gc'), g=cv.getContext('2d');
+  let snake, dir, queue, food, score, best=0, timer=null, over;
+  function spawn(){
+    do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};}
+    while(snake.some(s=>s.x===food.x&&s.y===food.y));
+  }
+  function reset(){
+    snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}]; dir={x:1,y:0}; queue=[]; score=0; over=false;
+    $('gs').textContent=0; spawn(); clearInterval(timer); timer=setInterval(tick,115); draw();
+  }
+  function turn(x,y){
+    const last=queue.length?queue[queue.length-1]:dir;
+    if(x===-last.x&&y===-last.y)return; if(x===last.x&&y===last.y)return;
+    if(queue.length<3)queue.push({x,y});
+  }
+  function tick(){
+    if(queue.length)dir=queue.shift();
+    const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+    if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){
+      over=true; clearInterval(timer); if(score>best){best=score;$('gb').textContent=best;} draw(); return;
+    }
+    snake.unshift(h);
+    if(h.x===food.x&&h.y===food.y){score++;$('gs').textContent=score;spawn();}
+    else snake.pop();
+    draw();
+  }
+  function rr(x,y,w,h,r){g.beginPath();g.roundRect?g.roundRect(x,y,w,h,r):g.rect(x,y,w,h);g.fill();}
+  function draw(){
+    g.fillStyle='#0d0307'; g.fillRect(0,0,360,360);
+    g.fillStyle='rgba(155,28,52,.08)';
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++)if((i+j)%2)g.fillRect(i*G,j*G,G,G);
+    g.fillStyle='#ffd7dc'; g.beginPath(); g.arc(food.x*G+G/2,food.y*G+G/2,G/2-3,0,7); g.fill();
+    snake.forEach((s,i)=>{g.fillStyle=i?'#c02642':'#ff5a6e'; rr(s.x*G+1,s.y*G+1,G-2,G-2,5);});
+    if(over){
+      g.fillStyle='rgba(10,2,5,.7)'; g.fillRect(0,0,360,360);
+      g.fillStyle='#fff'; g.textAlign='center'; g.font='bold 26px Segoe UI,sans-serif';
+      g.fillText('Игра окончена',180,170); g.font='16px Segoe UI,sans-serif';
+      g.fillStyle='#e8b4a0'; g.fillText('Счёт: '+score+' · пробел или тап — заново',180,200);
+    }
+  }
+  function open(){$('gm').hidden=false; reset();}
+  function close(){$('gm').hidden=true; clearInterval(timer);}
+  document.querySelectorAll('.game').forEach(b=>b.onclick=open);
+  $('gx').onclick=close;
+  $('gm').addEventListener('pointerdown',e=>{if(e.target===$('gm'))close();});
+  document.addEventListener('keydown',e=>{
+    if($('gm').hidden)return;
+    const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],ц:[0,-1],ы:[0,1],ф:[-1,0],в:[1,0]}[e.key.length===1?e.key.toLowerCase():e.key];
+    if(m){turn(m[0],m[1]);e.preventDefault();}
+    else if(e.key===' '){if(over)reset();e.preventDefault();}
+    else if(e.key==='Escape')close();
+  });
+  document.querySelectorAll('.dpad button').forEach(b=>b.onclick=()=>{const [x,y]=b.dataset.d.split(',').map(Number);turn(x,y);});
+  let t0=null;
+  cv.addEventListener('touchstart',e=>{t0=e.touches[0];if(over)reset();e.preventDefault();},{passive:false});
+  cv.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+  cv.addEventListener('touchend',e=>{
+    if(!t0)return; const t=e.changedTouches[0], dx=t.clientX-t0.clientX, dy=t.clientY-t0.clientY; t0=null;
+    if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;
+    Math.abs(dx)>Math.abs(dy)?turn(dx>0?1:-1,0):turn(0,dy>0?1:-1);
+  });
+  cv.addEventListener('click',()=>{if(over)reset();});
+})();
+</script>
+<script>
+(function(){
+  var KEY='merwcut_welcome_seen',w=document.getElementById('welcome');
+  var seen=false;
+  try{seen=localStorage.getItem(KEY)==='1'}catch(e){}
+  if(seen)return;
+  w.hidden=false;
+  function close(){
+    w.hidden=true;
+    try{localStorage.setItem(KEY,'1')}catch(e){}
+  }
+  document.getElementById('wok').addEventListener('click',close);
+  document.getElementById('wtg').addEventListener('click',close);
+  document.getElementById('wok').focus();
+})();
+</script>
+<script>
+(function(){
+  var h=document.getElementById('brand'),bw=h.querySelector('.bw'),a=h.querySelector('.n1'),b=h.querySelector('.n2');
+  function fit(){bw.style.width=(h.classList.contains('open')?b:a).offsetWidth+'px';}
+  function toggle(){h.classList.toggle('open');h.setAttribute('aria-expanded',h.classList.contains('open'));fit();}
+  h.addEventListener('click',toggle);
+  h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+  window.addEventListener('resize',fit);
+  fit(); if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>
